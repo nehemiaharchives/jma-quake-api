@@ -6,3 +6,29 @@ jma-quake-api parses [earthquake data json](https://www.jma.go.jp/bosai/quake/da
 val json: String = /* http request get https://www.jma.go.jp/bosai/quake/data/list.json */
 val jmaQuakeDataArray = Json.decodeFromString<Array<JmaQuakeData>>(json)
 ```
+
+It can also parse names of cities from [city name dictionary json](https://www.data.jma.go.jp/multi/data/dictionary/city.json)
+```kotlin
+val json: String = /* http request get https://www.data.jma.go.jp/multi/data/dictionary/city.json */
+val cityDictionary = JmaCityDictionary(json)
+assertEquals("志賀町", cityDictionary.getCityName("1738400", Language.japanese))
+```
+
+Then you can do something like following:
+```kotlin
+val jmaQuakeDataWithInt7 = jmaQuakeDataArray.first { jmaQuakeData ->
+    jmaQuakeData.hasCityMaxIntensity() && jmaQuakeData.maxi == SeismicIntensity.SEVEN
+}
+
+val cityMaxIntensityList = mutableListOf<CityMaxIntensity>()
+
+jmaQuakeDataWithInt7.int.forEach { prefectureIntensityArray ->
+    prefectureIntensityArray.city.forEach { cityMaxIntensity ->
+        cityMaxIntensityList.add(cityMaxIntensity)
+    }
+}
+
+val city = cityMaxIntensityList.first { it.maxi.greaterThanEqual(SeismicIntensity.SEVEN) }
+val name = jmaCityDictionary.getCityName(city.code, Language.japanese)
+assertEquals("志賀町", name)
+```
