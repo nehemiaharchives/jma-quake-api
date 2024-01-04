@@ -14,6 +14,21 @@ class JmaQuakeDataTest {
     private val format = Json { prettyPrint = true }
 
     @Test
+    fun seismicIntensityComparisonTest(){
+        val four = "4".toSeismicIntensity()
+        assertTrue(four.greaterThanEqual(SeismicIntensity.ZERO))
+        assertTrue(four.greaterThanEqual(SeismicIntensity.ONE))
+        assertTrue(four.greaterThanEqual(SeismicIntensity.TWO))
+        assertTrue(four.greaterThanEqual(SeismicIntensity.TREE))
+        assertTrue(four.greaterThanEqual(SeismicIntensity.FOUR))
+        assertFalse(four.greaterThanEqual(SeismicIntensity.FIVE_LOWER))
+        assertFalse(four.greaterThanEqual(SeismicIntensity.FIVE_UPPER))
+        assertFalse(four.greaterThanEqual(SeismicIntensity.SIX_LOWER))
+        assertFalse(four.greaterThanEqual(SeismicIntensity.SIX_UPPER))
+        assertFalse(four.greaterThanEqual(SeismicIntensity.SEVEN))
+    }
+
+    @Test
     fun encodeCityMaxIntensityTest() {
         val expected = """
                     {
@@ -22,7 +37,7 @@ class JmaQuakeDataTest {
                     }
         """.trimIndent()
 
-        val cityMaxIntensity = CityMaxIntensity(code = "1738400", maxi = "2")
+        val cityMaxIntensity = CityMaxIntensity(code = "1738400", maxi = "2".toSeismicIntensity())
         val json = format.encodeToString(cityMaxIntensity)
         assertEquals(expected, json)
     }
@@ -48,8 +63,8 @@ class JmaQuakeDataTest {
 
         val prefectureIntensityArray = PrefectureIntensityArray(
             city = arrayOf(
-                CityMaxIntensity(code = "1620900", maxi = "1"),
-                CityMaxIntensity(code = "1621100", maxi = "1")
+                CityMaxIntensity(code = "1620900", maxi = "1".toSeismicIntensity()),
+                CityMaxIntensity(code = "1621100", maxi = "1".toSeismicIntensity())
             ),
             code = "16", maxi = "1",
         )
@@ -114,15 +129,15 @@ class JmaQuakeDataTest {
 
         val prefectureIntensityArray1 = PrefectureIntensityArray(
             city = arrayOf(
-                CityMaxIntensity("1720300", "1"),
-                CityMaxIntensity("1721100", "1")
+                CityMaxIntensity("1720300", "1".toSeismicIntensity()),
+                CityMaxIntensity("1721100", "1".toSeismicIntensity())
             ), code = "17", maxi = "3"
         )
 
         val prefectureIntensityArray2 = PrefectureIntensityArray(
             city = arrayOf(
-                CityMaxIntensity("1620900", "1"),
-                CityMaxIntensity("1621100", "1")
+                CityMaxIntensity("1620900", "1".toSeismicIntensity()),
+                CityMaxIntensity("1621100", "1".toSeismicIntensity())
             ), code = "16", maxi = "1"
         )
 
@@ -203,15 +218,15 @@ class JmaQuakeDataTest {
 
         val prefectureIntensityArray1 = PrefectureIntensityArray(
             city = arrayOf(
-                CityMaxIntensity("1720300", "1"),
-                CityMaxIntensity("1721100", "1")
+                CityMaxIntensity("1720300", "1".toSeismicIntensity()),
+                CityMaxIntensity("1721100", "1".toSeismicIntensity())
             ), code = "17", maxi = "3"
         )
 
         val prefectureIntensityArray2 = PrefectureIntensityArray(
             city = arrayOf(
-                CityMaxIntensity("1620900", "1"),
-                CityMaxIntensity("1621100", "1")
+                CityMaxIntensity("1620900", "1".toSeismicIntensity()),
+                CityMaxIntensity("1621100", "1".toSeismicIntensity())
             ), code = "16", maxi = "1"
         )
 
@@ -260,14 +275,14 @@ class JmaQuakeDataTest {
         }
 
         assertNotNull(shikaMachi)
-        assertEquals("7", shikaMachi.maxi)
+        assertEquals("7".toSeismicIntensity(), shikaMachi.maxi)
     }
 
     @Test
     fun hasCityMaxIntensityTest(){
 
         val prefectureIntensityArray = PrefectureIntensityArray(
-            city = arrayOf(CityMaxIntensity(code = "17", maxi = "3")),
+            city = arrayOf(CityMaxIntensity(code = "17", maxi = "3".toSeismicIntensity())),
             code = "17", maxi = "3"
         )
 

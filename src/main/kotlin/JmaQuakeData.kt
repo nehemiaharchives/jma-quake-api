@@ -16,34 +16,52 @@ object CityMaxIntensitySerializer : KSerializer<CityMaxIntensity> {
     override fun serialize(encoder: Encoder, value: CityMaxIntensity) {
         encoder.encodeStructure(descriptor) {
             encodeStringElement(descriptor, 0, value.code)
-            encodeStringElement(descriptor, 1, value.maxi)
+            encodeStringElement(descriptor, 1, value.maxi.notation)
         }
     }
 
     override fun deserialize(decoder: Decoder): CityMaxIntensity = decoder.decodeStructure(descriptor) {
-        if(decodeSequentially()){
+        if (decodeSequentially()) {
             CityMaxIntensity(
-                code =  decodeStringElement(descriptor, 0),
-                maxi =  decodeStringElement(descriptor, 1)
+                code = decodeStringElement(descriptor, 0),
+                maxi = decodeStringElement(descriptor, 1).toSeismicIntensity()
             )
         } else {
             var code: String? = null
             var maxi: String? = null
-            while(true){
-                when(val index = decodeElementIndex(descriptor)){
+            while (true) {
+                when (val index = decodeElementIndex(descriptor)) {
                     0 -> code = decodeStringElement(descriptor, index)
                     1 -> maxi = decodeStringElement(descriptor, index)
                     CompositeDecoder.DECODE_DONE -> break
                     else -> error("Unexpected index: $index")
                 }
             }
-            CityMaxIntensity(code!!, maxi!!)
+            CityMaxIntensity(code!!, maxi!!.toSeismicIntensity())
         }
     }
 }
 
+@Serializable
+enum class SeismicIntensity(val level: Int, val notation: String, val japanese: String) {
+    ZERO(1, "0", "震度0"),
+    ONE(2, "1", "震度1"),
+    TWO(3, "2", "震度2"),
+    TREE(4, "3", "震度3"),
+    FOUR(5, "4", "震度4"),
+    FIVE_LOWER(6, "5-", "震度5弱"),
+    FIVE_UPPER(7, "5+", "震度5強"),
+    SIX_LOWER(8, "6-", "震度6弱"),
+    SIX_UPPER(9, "6+", "震度6強"),
+    SEVEN(10, "7", "震度7");
+
+    fun greaterThanEqual(other: SeismicIntensity): Boolean = level >= other.level
+}
+
+fun String.toSeismicIntensity() = SeismicIntensity.entries.firstOrNull { it.notation == this }?: throw IllegalArgumentException("Unknown SeismicIntensity: $this")
+
 @Serializable(with = CityMaxIntensitySerializer::class)
-data class CityMaxIntensity(val code: String, val maxi: String)
+data class CityMaxIntensity(val code: String, val maxi: SeismicIntensity)
 
 @Serializable
 data class PrefectureIntensityArray(val city: Array<CityMaxIntensity>, val code: String, val maxi: String) {
@@ -195,7 +213,11 @@ object JmaQuakeDataSerializer : KSerializer<JmaQuakeData> {
 }
 
 /**
- * [ref](https://www.jma.go.jp/bosai/quake/data/list.json) */
+ * Compatible with VXSE51 or VXSE52 for now
+ * [ref1](https://www.jma.go.jp/bosai/quake/data/list.json)
+ * [ref2](https://www.data.jma.go.jp/add/suishin/cgi-bin/catalogue/make_product_page.cgi?id=Jishin)
+ * [ref3](https://xml.kishou.go.jp/jmaxml_20221209_format_v1_3.pdf)
+ * */
 @Serializable(with = JmaQuakeDataSerializer::class)
 data class JmaQuakeData(
     val acd: String,

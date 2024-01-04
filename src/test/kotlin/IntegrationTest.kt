@@ -1,17 +1,17 @@
-import com.github.nehemiaharchives.CityMaxIntensity
-import com.github.nehemiaharchives.JmaArea
-import com.github.nehemiaharchives.JmaQuakeData
+import com.github.nehemiaharchives.*
 import kotlinx.serialization.json.Json
 import org.junit.jupiter.api.Test
+import kotlin.test.assertEquals
 
 class IntegrationTest {
 
     @Test
     fun test() {
         val clazz = IntegrationTest::class.java
-        val jmaArea = Json.decodeFromString<JmaArea>(clazz.getResource(JMA_BOSAI_COMMON_CONST_AREA_JSON).readText())
+
         val jmaQuakeDataArray =
             Json.decodeFromString<Array<JmaQuakeData>>(clazz.getResource(JMA_BOSAI_QUAKE_DATA_LIST_JSON).readText())
+        val jmaCityDictionary = JmaCityDictionary(clazz.getResource("jma_multi_data_dictionary_city.json").readText())
 
         val jmaQuakeDataWithInt7 = jmaQuakeDataArray.first { jmaQuakeData ->
             jmaQuakeData.hasCityMaxIntensity() && jmaQuakeData.maxi == "7"
@@ -25,10 +25,8 @@ class IntegrationTest {
             }
         }
 
-
-        cityMaxIntensityList.forEach { city ->
-            val area = jmaArea.class20s[city.code]
-            println("${city.maxi} $area")
-        }
+        val city = cityMaxIntensityList.first { it.maxi.greaterThanEqual(SeismicIntensity.SEVEN) }
+        val name = jmaCityDictionary.getCityName(city.code, Language.japanese)
+        assertEquals("志賀町", name)
     }
 }
