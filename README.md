@@ -1,4 +1,4 @@
-# jma-quake-api
+# jma-quake-api [![](https://jitpack.io/v/nehemiaharchives/jma-quake-api.svg)](https://jitpack.io/#nehemiaharchives/jma-quake-api)
 
 jma-quake-api parses [earthquake data json](https://www.jma.go.jp/bosai/quake/data/list.json) provided by Japan Meteorological Agency into Kotlin data class `Array` of [`JmaQuakeData`](https://github.com/nehemiaharchives/jma-quake-api/blob/master/src/main/kotlin/JmaQuakeData.kt).
 
