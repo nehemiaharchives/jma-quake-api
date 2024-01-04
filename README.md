@@ -32,3 +32,21 @@ val city = cityMaxIntensityList.first { it.maxi.greaterThanEqual(SeismicIntensit
 val name = jmaCityDictionary.getCityName(city.code, Language.japanese)
 assertEquals("志賀町", name)
 ```
+
+## Installation
+Add following to your root build.gradle
+```groovy
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        mavenCentral()
+        maven { url 'https://jitpack.io' }
+    }
+}
+```
+Add dependency
+```groovy
+dependencies {
+    implementation 'com.github.nehemiaharchives:jma-quake-api:1.0.0'
+}
+```
