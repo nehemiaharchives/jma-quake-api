@@ -58,13 +58,59 @@ enum class SeismicIntensity(val level: Int, val notation: String, val japanese: 
     fun greaterThanEqual(other: SeismicIntensity): Boolean = level >= other.level
 }
 
-fun String.toSeismicIntensity() = SeismicIntensity.entries.firstOrNull { it.notation == this }?: throw IllegalArgumentException("Unknown SeismicIntensity: $this")
+fun String.toSeismicIntensity() = SeismicIntensity.entries.firstOrNull { it.notation == this }
+    ?: throw IllegalArgumentException("Unknown SeismicIntensity: $this")
 
 @Serializable(with = CityMaxIntensitySerializer::class)
 data class CityMaxIntensity(val code: String, val maxi: SeismicIntensity)
 
-@Serializable
-data class PrefectureIntensityArray(val city: Array<CityMaxIntensity>, val code: String, val maxi: String) {
+object PrefectureIntensityArraySerializer : KSerializer<PrefectureIntensityArray> {
+    override val descriptor: SerialDescriptor = buildClassSerialDescriptor("PrefectureIntensityArray") {
+        element("city", serialDescriptor<Array<CityMaxIntensity>>())
+        element("code", serialDescriptor<String>())
+        element("maxi", serialDescriptor<String>())
+    }
+
+    override fun serialize(encoder: Encoder, value: PrefectureIntensityArray) {
+        encoder.encodeStructure(descriptor) {
+            encodeSerializableElement(descriptor, 0, serializer<Array<CityMaxIntensity>>(), value.city)
+            encodeStringElement(descriptor, 1, value.code)
+            encodeStringElement(descriptor, 2, value.maxi.notation)
+        }
+    }
+
+    override fun deserialize(decoder: Decoder): PrefectureIntensityArray = decoder.decodeStructure(descriptor) {
+        if (decodeSequentially()) {
+            PrefectureIntensityArray(
+                decodeSerializableElement(descriptor, 0, serializer<Array<CityMaxIntensity>>()),
+                decodeStringElement(descriptor, 1),
+                decodeStringElement(descriptor, 2).toSeismicIntensity()
+            )
+        } else {
+            var city: Array<CityMaxIntensity>? = null
+            var code: String? = null
+            var maxi: String? = null
+
+            while (true) {
+                when (val index = decodeElementIndex(descriptor)) {
+                    0 -> city = decodeSerializableElement(descriptor, 0, serializer<Array<CityMaxIntensity>>())
+                    1 -> code = decodeStringElement(descriptor, 1)
+                    2 -> maxi = decodeStringElement(descriptor, 2)
+                    CompositeDecoder.DECODE_DONE -> break
+                    else -> throw SerializationException("Unexpected index $index")
+                }
+            }
+            PrefectureIntensityArray(
+                city = city!!,
+                code = code!!,
+                maxi = maxi!!.toSeismicIntensity()
+            )
+        }
+    }
+}
+
+@Serializable(with = PrefectureIntensityArraySerializer::class)
+data class PrefectureIntensityArray(val city: Array<CityMaxIntensity>, val code: String, val maxi: SeismicIntensity) {
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
