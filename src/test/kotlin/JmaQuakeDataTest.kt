@@ -14,8 +14,8 @@ class JmaQuakeDataTest {
     private val format = Json { prettyPrint = true }
 
     @Test
-    fun seismicIntensityComparisonTest(){
-        val four = "4".toSeismicIntensity()
+    fun seismicIntensityComparisonTest() {
+        val four = SeismicIntensity.FOUR
         assertTrue(four.greaterThanEqual(SeismicIntensity.ZERO))
         assertTrue(four.greaterThanEqual(SeismicIntensity.ONE))
         assertTrue(four.greaterThanEqual(SeismicIntensity.TWO))
@@ -37,7 +37,7 @@ class JmaQuakeDataTest {
                     }
         """.trimIndent()
 
-        val cityMaxIntensity = CityMaxIntensity(code = "1738400", maxi = "2".toSeismicIntensity())
+        val cityMaxIntensity = CityMaxIntensity(code = "1738400", maxi = SeismicIntensity.TWO)
         val json = format.encodeToString(cityMaxIntensity)
         assertEquals(expected, json)
     }
@@ -63,10 +63,10 @@ class JmaQuakeDataTest {
 
         val prefectureIntensityArray = PrefectureIntensityArray(
             city = arrayOf(
-                CityMaxIntensity(code = "1620900", maxi = "1".toSeismicIntensity()),
-                CityMaxIntensity(code = "1621100", maxi = "1".toSeismicIntensity())
+                CityMaxIntensity(code = "1620900", maxi = SeismicIntensity.ONE),
+                CityMaxIntensity(code = "1621100", maxi = SeismicIntensity.ONE)
             ),
-            code = "16", maxi = "1".toSeismicIntensity(),
+            code = "16", maxi = SeismicIntensity.ONE,
         )
 
         val json = format.encodeToString(prefectureIntensityArray)
@@ -129,16 +129,16 @@ class JmaQuakeDataTest {
 
         val prefectureIntensityArray1 = PrefectureIntensityArray(
             city = arrayOf(
-                CityMaxIntensity("1720300", "1".toSeismicIntensity()),
-                CityMaxIntensity("1721100", "1".toSeismicIntensity())
-            ), code = "17", maxi = "3".toSeismicIntensity()
+                CityMaxIntensity("1720300", SeismicIntensity.ONE),
+                CityMaxIntensity("1721100", SeismicIntensity.ONE)
+            ), code = "17", maxi = SeismicIntensity.TREE
         )
 
         val prefectureIntensityArray2 = PrefectureIntensityArray(
             city = arrayOf(
-                CityMaxIntensity("1620900", "1".toSeismicIntensity()),
-                CityMaxIntensity("1621100", "1".toSeismicIntensity())
-            ), code = "16", maxi = "1".toSeismicIntensity()
+                CityMaxIntensity("1620900", SeismicIntensity.ONE),
+                CityMaxIntensity("1621100", SeismicIntensity.ONE)
+            ), code = "16", maxi = SeismicIntensity.ONE
         )
 
         val jmaQuakeData = JmaQuakeData(
@@ -154,7 +154,7 @@ class JmaQuakeDataTest {
             int = arrayOf(prefectureIntensityArray1, prefectureIntensityArray2),
             json = "20240103161126_20240103160815_VXSE5k_1.json",
             mag = "4.2",
-            maxi = "3",
+            maxi = SeismicIntensity.TREE,
             rdt = "2024-01-03T16:11:00+09:00",
             ser = "1",
             ttl = "震源・震度情報"
@@ -218,16 +218,16 @@ class JmaQuakeDataTest {
 
         val prefectureIntensityArray1 = PrefectureIntensityArray(
             city = arrayOf(
-                CityMaxIntensity("1720300", "1".toSeismicIntensity()),
-                CityMaxIntensity("1721100", "1".toSeismicIntensity())
-            ), code = "17", maxi = "3".toSeismicIntensity()
+                CityMaxIntensity("1720300", SeismicIntensity.ONE),
+                CityMaxIntensity("1721100", SeismicIntensity.ONE)
+            ), code = "17", maxi = SeismicIntensity.TREE
         )
 
         val prefectureIntensityArray2 = PrefectureIntensityArray(
             city = arrayOf(
-                CityMaxIntensity("1620900", "1".toSeismicIntensity()),
-                CityMaxIntensity("1621100", "1".toSeismicIntensity())
-            ), code = "16", maxi = "1".toSeismicIntensity()
+                CityMaxIntensity("1620900", SeismicIntensity.ONE),
+                CityMaxIntensity("1621100", SeismicIntensity.ONE)
+            ), code = "16", maxi = SeismicIntensity.ONE
         )
 
         val expected = JmaQuakeData(
@@ -243,7 +243,7 @@ class JmaQuakeDataTest {
             int = arrayOf(prefectureIntensityArray1, prefectureIntensityArray2),
             json = "20240103161126_20240103160815_VXSE5k_1.json",
             mag = "4.2",
-            maxi = "3",
+            maxi = SeismicIntensity.TREE,
             rdt = "2024-01-03T16:11:00+09:00",
             ser = "0",
             ttl = "震源・震度情報"
@@ -275,15 +275,15 @@ class JmaQuakeDataTest {
         }
 
         assertNotNull(shikaMachi)
-        assertEquals("7".toSeismicIntensity(), shikaMachi.maxi)
+        assertEquals(SeismicIntensity.SEVEN, shikaMachi.maxi)
     }
 
     @Test
-    fun hasCityMaxIntensityTest(){
+    fun hasCityMaxIntensityTest() {
 
         val prefectureIntensityArray = PrefectureIntensityArray(
-            city = arrayOf(CityMaxIntensity(code = "17", maxi = "3".toSeismicIntensity())),
-            code = "17", maxi = "3".toSeismicIntensity()
+            city = arrayOf(CityMaxIntensity(code = "17", maxi = SeismicIntensity.TREE)),
+            code = "17", maxi = SeismicIntensity.TREE
         )
 
         val withMaxIntensity = JmaQuakeData(
@@ -299,7 +299,7 @@ class JmaQuakeDataTest {
             int = arrayOf(prefectureIntensityArray),
             json = "20240103161126_20240103160815_VXSE5k_1.json",
             mag = "4.2",
-            maxi = "3",
+            maxi = SeismicIntensity.TREE,
             rdt = "2024-01-03T16:11:00+09:00",
             ser = "0",
             ttl = "震源・震度情報"
@@ -320,7 +320,7 @@ class JmaQuakeDataTest {
             int = emptyArray(),
             json = "20240103161126_20240103160815_VXSE5k_1.json",
             mag = "4.2",
-            maxi = "3",
+            maxi = SeismicIntensity.TREE,
             rdt = "2024-01-03T16:11:00+09:00",
             ser = "0",
             ttl = "震源・震度情報"
@@ -329,7 +329,7 @@ class JmaQuakeDataTest {
 
         val prefectureIntensityArrayWithoutCityMaxIntensity = PrefectureIntensityArray(
             city = emptyArray(),
-            code = "17", maxi = "3".toSeismicIntensity()
+            code = "17", maxi = SeismicIntensity.TREE
         )
 
         val withoutCityMaxIntensity = JmaQuakeData(
@@ -345,7 +345,7 @@ class JmaQuakeDataTest {
             int = arrayOf(prefectureIntensityArrayWithoutCityMaxIntensity),
             json = "20240103161126_20240103160815_VXSE5k_1.json",
             mag = "4.2",
-            maxi = "3",
+            maxi = SeismicIntensity.TREE,
             rdt = "2024-01-03T16:11:00+09:00",
             ser = "0",
             ttl = "震源・震度情報"

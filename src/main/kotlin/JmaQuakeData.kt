@@ -44,6 +44,7 @@ object CityMaxIntensitySerializer : KSerializer<CityMaxIntensity> {
 
 @Serializable
 enum class SeismicIntensity(val level: Int, val notation: String, val japanese: String) {
+    NA(0, "empty", "値なし"),
     ZERO(1, "0", "震度0"),
     ONE(2, "1", "震度1"),
     TWO(3, "2", "震度2"),
@@ -59,7 +60,7 @@ enum class SeismicIntensity(val level: Int, val notation: String, val japanese: 
 }
 
 fun String.toSeismicIntensity() = SeismicIntensity.entries.firstOrNull { it.notation == this }
-    ?: throw IllegalArgumentException("Unknown SeismicIntensity: $this")
+    ?: SeismicIntensity.NA
 
 @Serializable(with = CityMaxIntensitySerializer::class)
 data class CityMaxIntensity(val code: String, val maxi: SeismicIntensity)
@@ -161,7 +162,7 @@ object JmaQuakeDataSerializer : KSerializer<JmaQuakeData> {
             encodeSerializableElement(descriptor, 9, serializer<Array<PrefectureIntensityArray>>(), value.int)
             encodeStringElement(descriptor, 10, value.json)
             encodeStringElement(descriptor, 11, value.mag)
-            encodeStringElement(descriptor, 12, value.maxi)
+            encodeStringElement(descriptor, 12, value.maxi.notation)
             encodeStringElement(descriptor, 13, value.rdt)
             encodeStringElement(descriptor, 14, value.ser)
             encodeStringElement(descriptor, 15, value.ttl)
@@ -183,7 +184,7 @@ object JmaQuakeDataSerializer : KSerializer<JmaQuakeData> {
                 int = decodeSerializableElement(descriptor, 9, serializer<Array<PrefectureIntensityArray>>()),
                 json = decodeStringElement(descriptor, 10),
                 mag = decodeStringElement(descriptor, 11),
-                maxi = decodeStringElement(descriptor, 12),
+                maxi = decodeStringElement(descriptor, 12).toSeismicIntensity(),
                 rdt = decodeStringElement(descriptor, 13),
                 ser = decodeStringElement(descriptor, 14),
                 ttl = decodeStringElement(descriptor, 15)
@@ -249,7 +250,7 @@ object JmaQuakeDataSerializer : KSerializer<JmaQuakeData> {
                 int = int!!,
                 json = json!!,
                 mag = mag!!,
-                maxi = maxi!!,
+                maxi = maxi!!.toSeismicIntensity(),
                 rdt = rdt!!,
                 ser = ser!!,
                 ttl = ttl!!,
@@ -278,7 +279,7 @@ data class JmaQuakeData(
     val int: Array<PrefectureIntensityArray>,
     val json: String,
     val mag: String,
-    val maxi: String,
+    val maxi: SeismicIntensity,
     val rdt: String,
     val ser: String,
     val ttl: String

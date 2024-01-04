@@ -14,7 +14,7 @@ class IntegrationTest {
         val jmaCityDictionary = JmaCityDictionary(clazz.getResource("jma_multi_data_dictionary_city.json").readText())
 
         val jmaQuakeDataWithInt7 = jmaQuakeDataArray.first { jmaQuakeData ->
-            jmaQuakeData.hasCityMaxIntensity() && jmaQuakeData.maxi == "7"
+            jmaQuakeData.hasCityMaxIntensity() && jmaQuakeData.maxi == SeismicIntensity.SEVEN
         }
 
         val cityMaxIntensityList = mutableListOf<CityMaxIntensity>()
