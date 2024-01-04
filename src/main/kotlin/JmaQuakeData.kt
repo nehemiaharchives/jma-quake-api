@@ -7,7 +7,42 @@ import kotlinx.serialization.descriptors.listSerialDescriptor
 import kotlinx.serialization.descriptors.serialDescriptor
 import kotlinx.serialization.encoding.*
 
-@Serializable
+object CityMaxIntensitySerializer : KSerializer<CityMaxIntensity> {
+    override val descriptor: SerialDescriptor = buildClassSerialDescriptor("CityMaxIntensity") {
+        element("code", serialDescriptor<String>())
+        element("maxi", serialDescriptor<String>())
+    }
+
+    override fun serialize(encoder: Encoder, value: CityMaxIntensity) {
+        encoder.encodeStructure(descriptor) {
+            encodeStringElement(descriptor, 0, value.code)
+            encodeStringElement(descriptor, 1, value.maxi)
+        }
+    }
+
+    override fun deserialize(decoder: Decoder): CityMaxIntensity = decoder.decodeStructure(descriptor) {
+        if(decodeSequentially()){
+            CityMaxIntensity(
+                code =  decodeStringElement(descriptor, 0),
+                maxi =  decodeStringElement(descriptor, 1)
+            )
+        } else {
+            var code: String? = null
+            var maxi: String? = null
+            while(true){
+                when(val index = decodeElementIndex(descriptor)){
+                    0 -> code = decodeStringElement(descriptor, index)
+                    1 -> maxi = decodeStringElement(descriptor, index)
+                    CompositeDecoder.DECODE_DONE -> break
+                    else -> error("Unexpected index: $index")
+                }
+            }
+            CityMaxIntensity(code!!, maxi!!)
+        }
+    }
+}
+
+@Serializable(with = CityMaxIntensitySerializer::class)
 data class CityMaxIntensity(val code: String, val maxi: String)
 
 @Serializable
@@ -126,10 +161,11 @@ object JmaQuakeDataSerializer : KSerializer<JmaQuakeData> {
                     13 -> rdt = decodeStringElement(descriptor, 13)
                     14 -> ser = try {
                         decodeStringElement(descriptor, 14)
-                    }catch (e: Exception){
+                    } catch (e: Exception) {
                         /*e.printStackTrace() ignore this case */
                         "0"
                     }
+
                     15 -> ttl = decodeStringElement(descriptor, 15)
                     CompositeDecoder.DECODE_DONE -> break
                     else -> error("Unexpected index: $index")
@@ -179,8 +215,8 @@ data class JmaQuakeData(
     val ser: String,
     val ttl: String
 ) {
-    fun hasCityMaxIntensity():Boolean {
-        if(int.isEmpty()) return false
+    fun hasCityMaxIntensity(): Boolean {
+        if (int.isEmpty()) return false
         int.forEach { prefectureIntensityArray ->
             if (prefectureIntensityArray.city.isNotEmpty()) return true
         }
