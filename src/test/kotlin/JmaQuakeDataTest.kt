@@ -3,7 +3,11 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
+
+const val JMA_BOSAI_QUAKE_DATA_LIST_JSON = "jma_bosai_quake_data_list.json"
 
 class JmaQuakeDataTest {
 
@@ -257,5 +261,81 @@ class JmaQuakeDataTest {
 
         assertNotNull(shikaMachi)
         assertEquals("7", shikaMachi.maxi)
+    }
+
+    @Test
+    fun hasCityMaxIntensityTest(){
+
+        val prefectureIntensityArray = PrefectureIntensityArray(
+            city = arrayOf(CityMaxIntensity(code = "17", maxi = "3")),
+            code = "17", maxi = "3"
+        )
+
+        val withMaxIntensity = JmaQuakeData(
+            acd = "390",
+            anm = "石川県能登地方",
+            at = "2024-01-03T16:08:00+09:00",
+            cod = "+37.4+136.9-10000/",
+            ctt = "20240103161126",
+            eid = "20240103160815",
+            enAnm = "Noto, Ishikawa Prefecture",
+            enTtl = "Earthquake and Seismic Intensity Information",
+            ift = "発表",
+            int = arrayOf(prefectureIntensityArray),
+            json = "20240103161126_20240103160815_VXSE5k_1.json",
+            mag = "4.2",
+            maxi = "3",
+            rdt = "2024-01-03T16:11:00+09:00",
+            ser = "0",
+            ttl = "震源・震度情報"
+        )
+
+        assertTrue(withMaxIntensity.hasCityMaxIntensity())
+
+        val withoutPrefectureIntensityArray = JmaQuakeData(
+            acd = "390",
+            anm = "石川県能登地方",
+            at = "2024-01-03T16:08:00+09:00",
+            cod = "+37.4+136.9-10000/",
+            ctt = "20240103161126",
+            eid = "20240103160815",
+            enAnm = "Noto, Ishikawa Prefecture",
+            enTtl = "Earthquake and Seismic Intensity Information",
+            ift = "発表",
+            int = emptyArray(),
+            json = "20240103161126_20240103160815_VXSE5k_1.json",
+            mag = "4.2",
+            maxi = "3",
+            rdt = "2024-01-03T16:11:00+09:00",
+            ser = "0",
+            ttl = "震源・震度情報"
+        )
+        assertFalse(withoutPrefectureIntensityArray.hasCityMaxIntensity())
+
+        val prefectureIntensityArrayWithoutCityMaxIntensity = PrefectureIntensityArray(
+            city = emptyArray(),
+            code = "17", maxi = "3"
+        )
+
+        val withoutCityMaxIntensity = JmaQuakeData(
+            acd = "390",
+            anm = "石川県能登地方",
+            at = "2024-01-03T16:08:00+09:00",
+            cod = "+37.4+136.9-10000/",
+            ctt = "20240103161126",
+            eid = "20240103160815",
+            enAnm = "Noto, Ishikawa Prefecture",
+            enTtl = "Earthquake and Seismic Intensity Information",
+            ift = "発表",
+            int = arrayOf(prefectureIntensityArrayWithoutCityMaxIntensity),
+            json = "20240103161126_20240103160815_VXSE5k_1.json",
+            mag = "4.2",
+            maxi = "3",
+            rdt = "2024-01-03T16:11:00+09:00",
+            ser = "0",
+            ttl = "震源・震度情報"
+        )
+
+        assertFalse(withoutCityMaxIntensity.hasCityMaxIntensity())
     }
 }

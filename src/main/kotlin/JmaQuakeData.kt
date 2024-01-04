@@ -12,6 +12,7 @@ data class CityMaxIntensity(val code: String, val maxi: String)
 
 @Serializable
 data class PrefectureIntensityArray(val city: Array<CityMaxIntensity>, val code: String, val maxi: String) {
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
@@ -178,6 +179,14 @@ data class JmaQuakeData(
     val ser: String,
     val ttl: String
 ) {
+    fun hasCityMaxIntensity():Boolean {
+        if(int.isEmpty()) return false
+        int.forEach { prefectureIntensityArray ->
+            if (prefectureIntensityArray.city.isNotEmpty()) return true
+        }
+        return false
+    }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
@@ -223,8 +232,4 @@ data class JmaQuakeData(
         result = 31 * result + ttl.hashCode()
         return result
     }
-}
-
-fun main() {
-    println("Hello World!")
 }
